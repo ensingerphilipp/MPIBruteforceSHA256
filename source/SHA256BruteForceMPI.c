@@ -9,11 +9,11 @@ int main(int argc, char** argv) {
   
 	while ((opt = getopt(argc, argv, ":c:l:")) != -1){
 		switch (opt){
-		case 'c':
-			printf("charset: %s\n", optarg);
-			break;
 		case 'l':
 			printf("length: %s\n", optarg);
+			break;
+		case 'c':
+			printf("charset: %s\n", optarg);
 			break;
 		case ':':
 			printf("option needs a value\n");
@@ -22,10 +22,7 @@ int main(int argc, char** argv) {
 			printf("unknown option: %c\n", optopt);
 			break;
 		}
-
-		for (; optind < argc; optind++) {
 			printf("Submitted Hash: %s\n", argv[optind]);
-		}
 	}
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
