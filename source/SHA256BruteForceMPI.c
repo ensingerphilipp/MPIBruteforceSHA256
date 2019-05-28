@@ -3,6 +3,31 @@
 #include <mpi.h>
 
 int main(int argc, char** argv) {
+	int opt;
+
+	// put ':' in the starting of the 
+	// string so that program can  
+	//distinguish between '?' and ':'  
+	while ((opt = getopt(argc, argv, “cl:”)) != -1){
+		switch (opt){
+		case ‘c’:
+			printf(“charset: %s\n”, optarg);
+			break;
+		case ‘l’:
+			printf(“length: %s\n”, optarg);
+			break;
+		case ‘:’:
+			printf(“option needs a value\n”);
+			break;
+		case ‘?’ :
+			printf(“unknown option: %c\n”, optopt);
+			break;
+		}
+
+		for (; optind < argc; optind++) {
+			printf(“Submitted Hash: %s\n”, argv[optind]);
+		}
+	}
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
 
