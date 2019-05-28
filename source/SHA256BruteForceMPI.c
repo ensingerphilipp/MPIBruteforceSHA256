@@ -8,17 +8,18 @@
 int main(int argc, char** argv) {
 	int opt;
 	int length;
-	char charset[254];
-	char hash[254];
+	char *charset;
+	char *hash;
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
 			length = optarg;
-			printf("length: %s\n", length);
+			printf("length: %d\n", length);
 			break;
 		case 'c':
-			charset = optarg;
+			charset = malloc(strlen(optarg));
+			strcpy(charset, optarg);
 			printf("charset: %s\n", charset);
 			break;
 		case ':':
@@ -29,8 +30,8 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-
-	hash = argv[optind];
+	hash = malloc(strlen(argv[optind];));
+	strcpy(hash, argv[optind]);
 	printf("Submitted Hash: %s\n", hash);
 
 	// Initialize the MPI environment
