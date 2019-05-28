@@ -2,28 +2,29 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <unistd.h>
+#include <getopt.h>
 
 int main(int argc, char** argv) {
 	int opt;
   
-	while ((opt = getopt(argc, argv, “:c:l:”)) != -1){
+	while ((opt = getopt(argc, argv, ":c:l:")) != -1){
 		switch (opt){
-		case ‘c’:
-			printf(“charset: %s\n”, optarg);
+		case 'c':
+			printf("charset: %s\n", optarg);
 			break;
-		case ‘l’:
-			printf(“length: %s\n”, optarg);
+		case 'l':
+			printf("length: %s\n", optarg);
 			break;
-		case ‘:’:
-			printf(“option needs a value\n”);
+		case ':':
+			printf("option needs a value\n");
 			break;
-		case ‘?’ :
-			printf(“unknown option: %c\n”, optopt);
+		case '?' :
+			printf("unknown option: %c\n", optopt);
 			break;
 		}
 
 		for (; optind < argc; optind++) {
-			printf(“Submitted Hash: %s\n”, argv[optind]);
+			printf("Submitted Hash: %s\n", argv[optind]);
 		}
 	}
 	// Initialize the MPI environment
