@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include <unistd.h>
 
 int main(int argc, char** argv) {
 	int opt;
-
-	// put ':' in the starting of the 
-	// string so that program can  
-	//distinguish between '?' and ':'  
-	while ((opt = getopt(argc, argv, “cl:”)) != -1){
+  
+	while ((opt = getopt(argc, argv, “:c:l:”)) != -1){
 		switch (opt){
 		case ‘c’:
 			printf(“charset: %s\n”, optarg);
