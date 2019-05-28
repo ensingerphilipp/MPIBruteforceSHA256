@@ -7,7 +7,7 @@
 int main(int argc, char** argv) {
 	int opt;
   
-	while ((opt = getopt(argc, argv, ":c:l:")) != -1){
+	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
 			printf("length: %s\n", optarg);
