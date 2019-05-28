@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
-			length = optarg;
+			length = (int) optarg;
 			printf("length: %d\n", length);
 			break;
 		case 'c':
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	hash = malloc(strlen(argv[optind];));
+	hash = malloc(strlen(argv[optind]));
 	strcpy(hash, argv[optind]);
 	printf("Submitted Hash: %s\n", hash);
 
