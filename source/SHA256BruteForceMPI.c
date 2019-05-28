@@ -3,17 +3,23 @@
 #include <mpi.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string.h>
 
 int main(int argc, char** argv) {
 	int opt;
+	int length;
+	char charset[];
+	char hash[];
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
-			printf("length: %s\n", optarg);
+			length = optarg
+			printf("length: %s\n", length);
 			break;
 		case 'c':
-			printf("charset: %s\n", optarg);
+			charset = optarg;
+			printf("charset: %s\n", charset);
 			break;
 		case ':':
 			printf("option needs a value\n");
@@ -24,7 +30,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	printf("Submitted Hash: %s\n", argv[optind]);
+	hash = argv[optind];
+	printf("Submitted Hash: %s\n", hash);
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
