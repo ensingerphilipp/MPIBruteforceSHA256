@@ -8,13 +8,13 @@
 int main(int argc, char** argv) {
 	int opt;
 	int length;
-	char charset[];
-	char hash[];
+	char charset[254];
+	char hash[254];
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
-			length = optarg
+			length = optarg;
 			printf("length: %s\n", length);
 			break;
 		case 'c':
