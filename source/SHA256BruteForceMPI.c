@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
-			length = (int) optarg;
+			length = atoi(optarg);
 			printf("length: %d\n", length);
 			break;
 		case 'c':
