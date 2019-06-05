@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 	hash = malloc(strlen(argv[optind]));
 	strcpy(hash, argv[optind]);
 
-	printf("Starting Compute for Hash '%s' with Charset'%c' for passwords with max length '%d' on Node %s\n", hash, charset, length, world_rank);
+	printf("Starting Compute for Hash '%s' with Charset'%s' for passwords with max length '%d' on Node %d\n", hash, charset, length, world_rank);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
