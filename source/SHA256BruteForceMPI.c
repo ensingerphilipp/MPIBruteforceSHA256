@@ -26,26 +26,17 @@ int main(int argc, char** argv) {
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	int name_len;
 	MPI_Get_processor_name(processor_name, &name_len);
-
-	// Print off a hello world message
-	printf("SHA256BruteForce HELLO from processor %s, rank %d"
-		" out of %d processors\n", processor_name, world_rank, world_size);
-
-
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
 			length = atoi(optarg);
-			printf("length: %d\n", length);
 			break;
 		case 'c':
 			charset = malloc(strlen(optarg));
 			strcpy(charset, optarg);
-			printf("charset: %s\n", charset);
 			break;
 		case ':':
-			printf("option needs a value\n");
 			break;
 		case '?' :
 			printf("unknown option: %c\n", optopt);
@@ -54,7 +45,8 @@ int main(int argc, char** argv) {
 	}
 	hash = malloc(strlen(argv[optind]));
 	strcpy(hash, argv[optind]);
-	printf("Submitted Hash: %s\n", hash);
+
+	printf("Starting Compute for Hash '%s' with Charset'%c' for passwords with max length '%d' on Node %s\n", hash, charset, length, world_rank);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
