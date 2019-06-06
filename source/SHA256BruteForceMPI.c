@@ -186,6 +186,6 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 		splitCharset[i - offset] = charset[i];
 	}
 	printf("Node : %d writing stringEND to %d\n", world_rank, i);
-	splitCharset[i] = '\0';
+	splitCharset[i - offset] = '\0';
 	return splitCharset;
 }
