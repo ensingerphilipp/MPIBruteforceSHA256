@@ -130,7 +130,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		if (currentLength == 1) {
 			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-				crackHash(arrayOfCharsets, currentLength, passwordString);
+				crackHash(arrayOfCharsets, passwordString, currentLength);
 			}
 		}
 
@@ -142,7 +142,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		else {
 			while (charsetBeginPtr < charsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				crackHash(arrayOfCharsets, currentLength, passwordString);
+				crackHash(arrayOfCharsets, passwordString, currentLength);
 			}
 		}
 
