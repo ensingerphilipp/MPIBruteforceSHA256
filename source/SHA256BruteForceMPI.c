@@ -56,8 +56,8 @@ int main(int argc, char** argv) {
 	strcpy(hash, argv[optind]);
 	printf("Got Arguments: %s %d %s\n", charset, length, hash);
 
-	//// Generate the SplittedCharset
-	//splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
+	// Generate the SplittedCharset
+	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	//splitCharset = strcpy(splitCharset, splitCharsetFunc(charset, world_rank, world_size));
 	//printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
 	//bruteForceSha256(charset, splitCharset, hash, length);
