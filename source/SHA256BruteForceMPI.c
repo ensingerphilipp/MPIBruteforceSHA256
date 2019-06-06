@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 	MPI_Finalize();
 
 	free(charset);
-	free(splitCharset);
+	//free(splitCharset);
 	free(hash);
 }
 
