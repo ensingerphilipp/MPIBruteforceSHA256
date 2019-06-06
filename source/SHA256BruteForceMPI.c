@@ -104,7 +104,7 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
 		//printf("%02hx", hash[i]);
-		printf("%d", hash[i]);
+		printf("%s : %d\n", passwordString, hash[i]);
 	}
 }
 
