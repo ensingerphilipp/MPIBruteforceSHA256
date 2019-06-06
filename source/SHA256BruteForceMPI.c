@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 
 /*
 	Reset the first Charset to the splitcharset
-	Reset all other Charsets to the normal charset
+	Reset all other Charsets to the normal charset.
 */
 
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length) {
