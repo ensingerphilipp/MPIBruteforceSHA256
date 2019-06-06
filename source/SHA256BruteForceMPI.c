@@ -83,7 +83,7 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 */
 
 void printArray(char** arrayOfCharsets, int len) {
-	*arrayOfCharsets[len + 1] = '\0';
+	//*arrayOfCharsets[len + 1] = '\0';
 		printf("%s",*arrayOfCharsets);
 }
 
