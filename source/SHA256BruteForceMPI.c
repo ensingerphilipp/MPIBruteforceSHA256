@@ -82,7 +82,7 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 */
 
 void printArray(char** arrayOfCharsets, int len) {
-	if (world_rank == 0) {
+	if (world_rank == 1) {
 		for (int i = 0; i < len; i++) {
 			putchar(*arrayOfCharsets[i]);
 		}
