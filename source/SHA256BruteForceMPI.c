@@ -5,125 +5,125 @@
 #include <getopt.h>
 #include <string.h>
 
-/*
-	Reset the first Charset to the splitcharset
-	Reset all other Charsets to the normal charset
-*/
-
-void resetArray(char** arrayOfCharsets, char *charset, char *splitCharset, int length) {
-	arrayOfCharsets[0] = splitCharset;
-	for (int i = 1; i <= length; i++) {
-		arrayOfCharsets[i] = charset;
-	}
-}
-
-/*
-	Print the first character of every charset in the arrayOfCharsets
-*/
-
-void printArray(char** arrayOfCharsets, int len) {
-	for (int i = 0; i < len; i++) {
-		putchar(*arrayOfCharsets[i]);
-	}
-	putchar('\n');
-}
-
-int bruteForceSha256(char *charset, char *splitCharset, char *hash, int maxLength) {
-	char* charsetBeginPtr = charset;
-	char* splitCharsetBeginPtr = splitCharset;
-	char** arrayOfCharsets = NULL;
-	int currentLength = 1;
-	int i;
-	int counter;
-
-		arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
-		const char* charsetEndPtr = charsetBeginPtr + strlen(charset);
-		const char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
-
-		/*
-			Loop while length of arrayOfCharsets is <= the maximum password length specified
-		*/
-
-		while (currentLength <= maxLength) {
-
-			/*
-				if length is 1 use the splitSet for filling characters
-				(Only fill first position with splitCharset)
-			*/
-
-			if (currentLength == 1) {
-				while (splitCharsetBeginPtr < splitCharsetEndPtr) {
-					arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-					printArray(arrayOfCharsets, currentLength);
-				}
-			}
-
-			/*
-				else use the complete Charset for filling charsets
-				(this does not fill the first position where splitCharset is filled)
-			*/
-
-			else {
-				while (charsetBeginPtr < charsetEndPtr) {
-					arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-					printArray(arrayOfCharsets, currentLength);
-				}
-			}
-
-			/*
-				For all charsets --> if splitCharset on position 0 has reached the end or any other charset has reached the end -->
-				increment the counter which is used to determine if the array has to be extended
-			*/
-
-			for (i = currentLength - 1, counter = 0; i >= 0; i--) {
-				if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
-					counter++;
-				}
-				else if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
-					counter++;
-				}
-				else break;
-			}
-			/*
-				When the counter is currentLength --> every character has reached the end of the charset -->
-				reset the Array Of Charsets and increase Length
-			*/
-
-			if (counter == currentLength) {
-				resetArray(arrayOfCharsets, charset, splitCharset, currentLength);
-				currentLength++;
-			}
-
-			/*
-				Else increment the outer charsetPointer (splitCharsetPointer) by
-				one (set next character) and reset all inner charsets
-			*/
-
-			else {
-				// Increment Pointer at charset and if it was null print Error
-				if (!(!arrayOfCharsets[currentLength - counter - 1]++)) {
-				}
-				else {
-					printf("arrayOfCharsets on Position %d was null when trying to access and increment", currentLength - counter - 1);
-				}
-
-				for (i = currentLength - 1; i >= currentLength - counter; i--) {
-					arrayOfCharsets[i] = charset;
-				}
-			}
-			charsetBeginPtr = charset;
-		}
-		free(arrayOfCharsets);
-		return 0;
-}
-
-char* splitCharsetFunc(char *charset, int world_rank, int world_size) {
-	char* splitCharset = NULL;
-	for (int i = 0; i < (strlen(charset) / world_size) + 1; i++) {
-		splitCharset[i] = charset[i * world_rank];
-	}
-	return splitCharset;
-}
+///*
+//	Reset the first Charset to the splitcharset
+//	Reset all other Charsets to the normal charset
+//*/
+//
+//void resetArray(char** arrayOfCharsets, char *charset, char *splitCharset, int length) {
+//	arrayOfCharsets[0] = splitCharset;
+//	for (int i = 1; i <= length; i++) {
+//		arrayOfCharsets[i] = charset;
+//	}
+//}
+//
+///*
+//	Print the first character of every charset in the arrayOfCharsets
+//*/
+//
+//void printArray(char** arrayOfCharsets, int len) {
+//	for (int i = 0; i < len; i++) {
+//		putchar(*arrayOfCharsets[i]);
+//	}
+//	putchar('\n');
+//}
+//
+//int bruteForceSha256(char *charset, char *splitCharset, char *hash, int maxLength) {
+//	char* charsetBeginPtr = charset;
+//	char* splitCharsetBeginPtr = splitCharset;
+//	char** arrayOfCharsets = NULL;
+//	int currentLength = 1;
+//	int i;
+//	int counter;
+//
+//		arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
+//		const char* charsetEndPtr = charsetBeginPtr + strlen(charset);
+//		const char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
+//
+//		/*
+//			Loop while length of arrayOfCharsets is <= the maximum password length specified
+//		*/
+//
+//		while (currentLength <= maxLength) {
+//
+//			/*
+//				if length is 1 use the splitSet for filling characters
+//				(Only fill first position with splitCharset)
+//			*/
+//
+//			if (currentLength == 1) {
+//				while (splitCharsetBeginPtr < splitCharsetEndPtr) {
+//					arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
+//					printArray(arrayOfCharsets, currentLength);
+//				}
+//			}
+//
+//			/*
+//				else use the complete Charset for filling charsets
+//				(this does not fill the first position where splitCharset is filled)
+//			*/
+//
+//			else {
+//				while (charsetBeginPtr < charsetEndPtr) {
+//					arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
+//					printArray(arrayOfCharsets, currentLength);
+//				}
+//			}
+//
+//			/*
+//				For all charsets --> if splitCharset on position 0 has reached the end or any other charset has reached the end -->
+//				increment the counter which is used to determine if the array has to be extended
+//			*/
+//
+//			for (i = currentLength - 1, counter = 0; i >= 0; i--) {
+//				if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
+//					counter++;
+//				}
+//				else if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
+//					counter++;
+//				}
+//				else break;
+//			}
+//			/*
+//				When the counter is currentLength --> every character has reached the end of the charset -->
+//				reset the Array Of Charsets and increase Length
+//			*/
+//
+//			if (counter == currentLength) {
+//				resetArray(arrayOfCharsets, charset, splitCharset, currentLength);
+//				currentLength++;
+//			}
+//
+//			/*
+//				Else increment the outer charsetPointer (splitCharsetPointer) by
+//				one (set next character) and reset all inner charsets
+//			*/
+//
+//			else {
+//				// Increment Pointer at charset and if it was null print Error
+//				if (!(!arrayOfCharsets[currentLength - counter - 1]++)) {
+//				}
+//				else {
+//					printf("arrayOfCharsets on Position %d was null when trying to access and increment", currentLength - counter - 1);
+//				}
+//
+//				for (i = currentLength - 1; i >= currentLength - counter; i--) {
+//					arrayOfCharsets[i] = charset;
+//				}
+//			}
+//			charsetBeginPtr = charset;
+//		}
+//		free(arrayOfCharsets);
+//		return 0;
+//}
+//
+//char* splitCharsetFunc(char *charset, int world_rank, int world_size) {
+//	char* splitCharset = NULL;
+//	for (int i = 0; i < (strlen(charset) / world_size) + 1; i++) {
+//		splitCharset[i] = charset[i * world_rank];
+//	}
+//	return splitCharset;
+//}
 
 int main(int argc, char** argv) {
 	int opt;
