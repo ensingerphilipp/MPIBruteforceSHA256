@@ -185,8 +185,10 @@ int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLengt
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 	char* splitCharset = malloc(strlen(charset) / world_size);
-	for (int i = 0; i < (strlen(charset) / world_size) + 1; i++) {
+	int i;
+	for (i = 0; i < (strlen(charset) / world_size) + 1; i++) {
 		splitCharset[i] = charset[i * world_rank];
 	}
+	splitCharset[i] = '\0';
 	return splitCharset;
 }
