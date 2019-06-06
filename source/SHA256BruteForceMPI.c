@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
 	printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
-	//bruteForceSha256(charset, splitCharset, hash, length);
+	bruteForceSha256(charset, splitCharset, hash, length);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
@@ -87,10 +87,10 @@ void printArray(char** arrayOfCharsets, int len) {
 	putchar('\n');
 }
 
-int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
+void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
-	char** arrayOfCharsets = NULL;
+	char** arrayOfCharsets;
 	int currentLength = 1;
 	int i;
 	int counter;
