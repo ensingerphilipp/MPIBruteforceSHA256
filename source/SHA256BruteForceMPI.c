@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 	MPI_Finalize();
 
 	free(charset);
-	//free(splitCharset);
+	free(splitCharset);
 	free(hash);
 }
 
@@ -84,6 +84,7 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 
 void printArray(char** arrayOfCharsets, int len) {
 	//*arrayOfCharsets[len + 1] = '\0';
+	if(world_rank == 0)
 		printf("%s\n",*arrayOfCharsets);
 }
 
