@@ -177,10 +177,10 @@ int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLengt
 }
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
-	int intervall = (strlen(charset) / world_size) + 1;
+	int intervall = (strlen(charset) / world_size);
 
-	if (strlen(charset) % world_size != 0 && world_rank % 2 == 0) {
-		intervall = (strlen(charset) / world_size);
+	if (strlen(charset) % world_size != 0 && world_size % world_rank == 0) {
+		intervall = intervall + (strlen(charset) % world_size);
 	}
 
 	int offset = intervall * world_rank;
