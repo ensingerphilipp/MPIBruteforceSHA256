@@ -89,6 +89,7 @@ void printArray(char** arrayOfCharsets, int len) {
 
 void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	int i;
+	unsigned char outputBuffer[65];
 	for (i = 0; i < len; i++) {
 		passwordString[i] = *arrayOfCharsets[i];
 	}
@@ -103,9 +104,10 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	printf("Password: %s --> Hash: ", passwordString);
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
-		printf("%02x", hash[i]);
+		sprintf(outputBuffer + (i * 2), "%02x", hash[i]);
 	}
-	printf("\n");
+	outputBuffer[64] = 0;
+	printf("%s\n", outputBuffer);
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
