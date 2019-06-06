@@ -9,6 +9,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
+int world_rank;
 
 int main(int argc, char** argv) {
 	int opt;
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 	// Get the rank of the process
-	int world_rank;
+	//int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
 	// Get the name of the processor
@@ -81,10 +82,12 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 */
 
 void printArray(char** arrayOfCharsets, int len) {
-	for (int i = 0; i < len; i++) {
-		putchar(*arrayOfCharsets[i]);
+	if (world_rank == 0) {
+		for (int i = 0; i < len; i++) {
+			putchar(*arrayOfCharsets[i]);
+		}
+		putchar('\n');
 	}
-	putchar('\n');
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
