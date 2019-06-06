@@ -9,6 +9,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
+void crackHash(char** arrayOfCharsets, int len);
 int world_rank;
 
 int main(int argc, char** argv) {
@@ -82,12 +83,11 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 */
 
 void printArray(char** arrayOfCharsets, int len) {
-	if (world_rank == 1) {
-		for (int i = 0; i < len; i++) {
-			putchar(*arrayOfCharsets[i]);
-		}
-		putchar('\n');
-	}
+	*arrayOfCharsets[len + 1] = '\0';
+		printf("%s",*arrayOfCharsets);
+}
+
+void crackHash(char** arrayOfCharsets, int len) {
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
@@ -98,7 +98,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 	int i;
 	int counter;
 
-	arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
+	arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 2));
 	const char* charsetEndPtr = charsetBeginPtr + strlen(charset);
 	const char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
 
