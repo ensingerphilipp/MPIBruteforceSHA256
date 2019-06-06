@@ -178,12 +178,13 @@ int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLengt
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 	int intervall = (strlen(charset) / world_size);
-
-	if (strlen(charset) % world_size != 0 && world_size % (world_rank + 1) == 0) {
+	int offset = intervall * world_rank;
+	printf("Worldsize: %d", world_size);
+	if (strlen(charset) % world_size != 0 && (world_size % (world_rank + 1) == 0)) {
 		intervall = intervall + (strlen(charset) % world_size);
 	}
 
-	int offset = intervall * world_rank;
+	
 	printf("Node : %d has intervall %d and offset %d\n", world_rank, intervall, offset);
 	char* splitCharset = malloc(intervall);
 	int i;
