@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 	int name_len;
 	MPI_Get_processor_name(processor_name, &name_len);
 	printf("processor name_len: = %d", name_len);
-	printf("processor_name = %c ", processor_name);
+	printf("processor_name = %s ", processor_name);
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
