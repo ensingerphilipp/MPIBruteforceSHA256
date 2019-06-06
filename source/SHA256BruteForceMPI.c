@@ -187,7 +187,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 	char* splitCharset = malloc(strlen(charset) / world_size);
 	int i;
 	for (i = 0; i < (strlen(charset) / world_size) + 1; i++) {
-		splitCharset[i] = charset[i * world_rank];
+		splitCharset[i] = charset[i * (world_rank + 1) * (world_rank + 1)];
 	}
 	splitCharset[i] = '\0';
 	return splitCharset;
