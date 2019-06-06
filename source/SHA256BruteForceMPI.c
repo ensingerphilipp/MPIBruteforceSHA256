@@ -125,9 +125,6 @@ char* splitCharsetFunc(char *charset, int world_rank, int world_size) {
 	return splitCharset;
 }
 
-
-
-
 int main(int argc, char** argv) {
 	int opt;
 	int length;
@@ -137,19 +134,22 @@ int main(int argc, char** argv) {
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
-
+	printf("MPI INIT");
 	// Get the number of processes
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
+	printf("World_size = %d", world_size);
 	// Get the rank of the process
 	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+	printf("World_rank = %d", world_rank);
 
 	// Get the name of the processor
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	int name_len;
 	MPI_Get_processor_name(processor_name, &name_len);
+	printf("processor name_len: = %d", name_len);
+	printf("processor_name = %c ", processor_name);
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
@@ -169,9 +169,11 @@ int main(int argc, char** argv) {
 	}
 	hash = malloc(strlen(argv[optind]));
 	strcpy(hash, argv[optind]);
+	printf("Got Arguments: %s %d %s", charset, length, hash);
 
 	// Generate the SplittedCharset
-	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
+	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
+	splitCharset = strcpy(splitCharset, splitCharsetFunc(charset, world_rank, world_size));
 	printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
 	bruteForceSha256(charset, splitCharset, hash, length);
 
