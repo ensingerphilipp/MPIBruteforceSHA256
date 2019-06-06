@@ -10,14 +10,14 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, int len);
-int world_rank;
+char* passwordString;
+char* hash;
 
 int main(int argc, char** argv) {
 	int opt;
 	int length;
 	char* splitCharset;
 	char* charset;
-	char *hash;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 	// Get the rank of the process
-	//int world_rank;
+	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
 	// Get the name of the processor
@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
 		switch (opt){
 		case 'l':
 			length = atoi(optarg);
+			char* passwordString = malloc(length + 1);
 			break;
 		case 'c':
 			charset = malloc(strlen(optarg));
@@ -62,13 +63,13 @@ int main(int argc, char** argv) {
 	MPI_Finalize();
 
 	free(charset);
-	free(splitCharset);
+	//free(splitCharset);
 	free(hash);
 }
 
 /*
 	Reset the first Charset to the splitcharset
-	Reset all other Charsets to the normal charset.
+	Reset all other Charsets to the normal charset
 */
 
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length) {
@@ -83,12 +84,26 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 */
 
 void printArray(char** arrayOfCharsets, int len) {
-	//*arrayOfCharsets[len + 1] = '\0';
-	if(world_rank == 0)
-		printf("%s\n",*arrayOfCharsets);
+		for (int i = 0; i < len; i++) {
+			putchar(*arrayOfCharsets[i]);
+		}
+		putchar('\n');
 }
 
 void crackHash(char** arrayOfCharsets, int len) {
+	int i;
+	for (i = 0; i < len; i++) {
+		passwordString[i] = *arrayOfCharsets[i];
+	}
+	passwordString[i] = '\0';
+	printf("%s\n", passwordString);
+	/*unsigned char digest[SHA256_DIGEST_LENGTH];
+	SHA256_CTX sha256;
+	SHA256_Init(&sha256);
+	SHA256_Update(&sha256, passwordString, len);
+	SHA256_Final(digest, &sha256);
+*/
+	
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
@@ -99,7 +114,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 	int i;
 	int counter;
 
-	arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 2));
+	arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
 	const char* charsetEndPtr = charsetBeginPtr + strlen(charset);
 	const char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
 
@@ -117,7 +132,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		if (currentLength == 1) {
 			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-				printArray(arrayOfCharsets, currentLength);
+				crackHash(arrayOfCharsets, currentLength);
 			}
 		}
 
@@ -129,7 +144,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		else {
 			while (charsetBeginPtr < charsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				printArray(arrayOfCharsets, currentLength);
+				crackHash(arrayOfCharsets, currentLength);
 			}
 		}
 
