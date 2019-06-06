@@ -106,6 +106,7 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 		printf("%02x", hash[i] - 128);
 		//rintf("%s : %d\n", passwordString, hash[i]);
 	}
+	printf("\n");
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
