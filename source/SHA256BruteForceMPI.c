@@ -182,14 +182,14 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 	int rest = strlen(charset) % world_size;
 
 	if (rest != 0) {
-		for (int i = 0; i <= rest; i++) {
+		for (int i = 1; i <= rest; i++) {
 			if (world_size % (world_rank + 1) == i && world_rank != 0) {
-				intervall = intervall + (strlen(charset) % world_size);
+				intervall = intervall++;
 				offset = offset++;
 			}
-			if (world_rank == 0) {
-				intervall = intervall++;
-			}
+		}
+		if (world_rank == 0) {
+			intervall = intervall++;
 		}
 	}  
 
