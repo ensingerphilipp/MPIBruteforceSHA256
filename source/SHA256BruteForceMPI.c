@@ -6,7 +6,7 @@
 #include <string.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
-int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
+void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 
@@ -173,7 +173,6 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		charsetBeginPtr = charset;
 	}
 	free(arrayOfCharsets);
-	return 0;
 }
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
