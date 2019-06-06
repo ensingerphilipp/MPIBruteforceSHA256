@@ -9,8 +9,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
-void crackHash(char** arrayOfCharsets, int len);
-char* passwordString;
+void crackHash(char** arrayOfCharsets, char* passwordString, int len);
 char* hash;
 
 int main(int argc, char** argv) {
@@ -37,7 +36,6 @@ int main(int argc, char** argv) {
 		switch (opt){
 		case 'l':
 			length = atoi(optarg);
-			char* passwordString = malloc(length + 1);
 			break;
 		case 'c':
 			charset = malloc(strlen(optarg));
@@ -61,9 +59,8 @@ int main(int argc, char** argv) {
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
-
 	free(charset);
-	//free(splitCharset);
+	free(splitCharset);
 	free(hash);
 }
 
@@ -90,7 +87,7 @@ void printArray(char** arrayOfCharsets, int len) {
 		putchar('\n');
 }
 
-void crackHash(char** arrayOfCharsets, int len) {
+void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	int i;
 	for (i = 0; i < len; i++) {
 		passwordString[i] = *arrayOfCharsets[i];
@@ -109,14 +106,15 @@ void crackHash(char** arrayOfCharsets, int len) {
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
-	char** arrayOfCharsets;
+	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
+	char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
+	char** arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
+	char* passwordString = malloc(maxLength + 1);
 	int currentLength = 1;
 	int i;
 	int counter;
 
-	arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
-	const char* charsetEndPtr = charsetBeginPtr + strlen(charset);
-	const char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
+
 
 	/*
 		Loop while length of arrayOfCharsets is <= the maximum password length specified
@@ -132,7 +130,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		if (currentLength == 1) {
 			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-				crackHash(arrayOfCharsets, currentLength);
+				crackHash(arrayOfCharsets, currentLength, passwordString);
 			}
 		}
 
@@ -144,7 +142,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		else {
 			while (charsetBeginPtr < charsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				crackHash(arrayOfCharsets, currentLength);
+				crackHash(arrayOfCharsets, currentLength, passwordString);
 			}
 		}
 
@@ -210,7 +208,6 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 			offset--;
 		}
 	}  
-
 	
 	printf("Node : %d has intervall %d and offset %d\n", world_rank, intervall, offset);
 	char* splitCharset = malloc(intervall);
