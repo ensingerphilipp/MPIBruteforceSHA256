@@ -11,13 +11,13 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, char* passwordString, int len);
-char* hash;
 
 int main(int argc, char** argv) {
 	int opt;
 	int length;
 	char* splitCharset;
 	char* charset;
+	unsigned char* hash;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
+	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
 	bruteForceSha256(charset, splitCharset, hash, length);
 
 	// Finalize the MPI environment.
@@ -94,16 +94,16 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	}
 	passwordString[i] = '\0';
 
-	unsigned char hash[SHA256_DIGEST_LENGTH];
+	unsigned char genHash[SHA256_DIGEST_LENGTH];
 	SHA256_CTX sha256;
 	SHA256_Init(&sha256);
 	SHA256_Update(&sha256, passwordString, len);
-	SHA256_Final(hash, &sha256);
+	SHA256_Final(genHash, &sha256);
 	i = 0;
 
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
-		printf("%02x", hash[i] - 128);
+		printf("%02hx", hash[i]);
 		//rintf("%s : %d\n", passwordString, hash[i]);
 	}
 	printf("\n");
