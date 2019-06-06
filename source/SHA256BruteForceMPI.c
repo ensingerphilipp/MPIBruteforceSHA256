@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <openssl/sha.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
@@ -92,14 +93,19 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 		passwordString[i] = *arrayOfCharsets[i];
 	}
 	passwordString[i] = '\0';
-	printf("%s\n", passwordString);
-	/*unsigned char digest[SHA256_DIGEST_LENGTH];
+
+	unsigned char digest[SHA256_DIGEST_LENGTH];
 	SHA256_CTX sha256;
 	SHA256_Init(&sha256);
 	SHA256_Update(&sha256, passwordString, len);
 	SHA256_Final(digest, &sha256);
-*/
-	
+	i = 0;
+	printf("Password: %s --> Hash: ", passwordString);
+	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
+	{
+		printf("%02x", hash[i]);
+	}
+	printf("\n");
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
