@@ -10,7 +10,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCrack, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
-void crackHash(char** arrayOfCharsets, char* passwordString, int len);
+void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashToCrack, int len);
 
 int main(int argc, char** argv) {
 	int opt;
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 	MPI_Finalize();
 	free(charset);
 	free(splitCharset);
-	free(hash);
+	free(hashToCrack);
 }
 
 /*
@@ -103,13 +103,13 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
-		printf("%02hx", hash[i]);
+		printf("%02hx", hashToCrack[i]);
 		//rintf("%s : %d\n", passwordString, hash[i]);
 	}
 	printf("\n");
 }
 
-void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength) {
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCrack, int maxLength) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
 	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
@@ -136,7 +136,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		if (currentLength == 1) {
 			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-				crackHash(arrayOfCharsets, passwordString, currentLength);
+				crackHash(arrayOfCharsets, passwordString, hashToCrack, currentLength);
 			}
 		}
 
@@ -148,7 +148,7 @@ void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLeng
 		else {
 			while (charsetBeginPtr < charsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				crackHash(arrayOfCharsets, passwordString, currentLength);
+				crackHash(arrayOfCharsets, passwordString, hashToCrack, currentLength);
 			}
 		}
 
