@@ -97,7 +97,7 @@ void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
 	unsigned char hash[SHA256_DIGEST_LENGTH];
 	SHA256_CTX sha256;
 	SHA256_Init(&sha256);
-	SHA256_Update(&sha256, passwordString, len - 1);
+	SHA256_Update(&sha256, passwordString, len);
 	SHA256_Final(hash, &sha256);
 	i = 0;
 	printf("Password: %s --> Hash: ", passwordString);
