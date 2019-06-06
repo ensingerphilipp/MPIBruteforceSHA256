@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
 	printf("Got SplitCharset: %s \n", splitCharset);
-	//printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
+	printf("Starting Compute for Hash '%s' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
 	//bruteForceSha256(charset, splitCharset, hash, length);
 
 	// Finalize the MPI environment.
