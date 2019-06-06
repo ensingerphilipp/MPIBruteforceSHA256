@@ -13,9 +13,9 @@ void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int l
 int main(int argc, char** argv) {
 	int opt;
 	int length;
-	char* splitCharset = NULL;
-	char *charset = NULL;
-	char *hash = NULL;
+	char* splitCharset;
+	char* charset;
+	char *hash;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -183,7 +183,7 @@ int bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLengt
 }
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
-	char* splitCharset = NULL;
+	char* splitCharset;
 	for (int i = 0; i < (strlen(charset) / world_size) + 1; i++) {
 		splitCharset[i] = charset[i * world_rank];
 	}
