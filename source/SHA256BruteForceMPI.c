@@ -7,7 +7,7 @@
 #include <openssl/sha.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
-void bruteForceSha256(char* charset, char* splitCharset, char* hash, int maxLength);
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCrack, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, char* passwordString, int len);
@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	int length;
 	char* splitCharset;
 	char* charset;
-	unsigned char* hash;
+	unsigned char* hashToCrack;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -48,14 +48,14 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	hash = malloc(strlen(argv[optind]));
-	strcpy(hash, argv[optind]);
+	hashToCrack = malloc(strlen(argv[optind]));
+	strcpy(hashToCrack, argv[optind]);
 
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hash, charset, splitCharset, length, world_rank);
-	bruteForceSha256(charset, splitCharset, hash, length);
+	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hashToCrack, charset, splitCharset, length, world_rank);
+	bruteForceSha256(charset, splitCharset, hashToCrack, length);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
@@ -87,7 +87,7 @@ void printArray(char** arrayOfCharsets, int len) {
 		putchar('\n');
 }
 
-void crackHash(char** arrayOfCharsets, char* passwordString, int len) {
+void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashToCrack, int len) {
 	int i;
 	for (i = 0; i < len; i++) {
 		passwordString[i] = *arrayOfCharsets[i];
