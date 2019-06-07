@@ -7,17 +7,18 @@
 #include <openssl/sha.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
-void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCrack, int maxLength);
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
-void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashToCrack, int len);
+void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
 
 int main(int argc, char** argv) {
 	int opt;
 	int length;
 	char* splitCharset;
 	char* charset;
-	unsigned char* hashToCrack;
+	char* hashChar;
+	unsigned char* hashHex;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -48,20 +49,23 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	hashToCrack = malloc(strlen(argv[optind]));
-	strcpy(hashToCrack, argv[optind]);
+	hashChar = malloc(strlen(argv[optind]));
+	hashHex = malloc(strlen(hashChar));
+	strcpy(hashChar, argv[optind]);
+	hashHex = (unsigned char)strtol(hashChar, NULL, 16);
 
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hashToCrack, charset, splitCharset, length, world_rank);
-	bruteForceSha256(charset, splitCharset, hashToCrack, length);
+	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hashHex, charset, splitCharset, length, world_rank);
+	bruteForceSha256(charset, splitCharset, hashHex, length);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
 	free(charset);
 	free(splitCharset);
-	free(hashToCrack);
+	free(hashHex);
+	free(hashChar);
 }
 
 /*
@@ -87,7 +91,7 @@ void printArray(char** arrayOfCharsets, int len) {
 		putchar('\n');
 }
 
-void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashToCrack, int len) {
+void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len) {
 	int i;
 	for (i = 0; i < len; i++) {
 		passwordString[i] = *arrayOfCharsets[i];
@@ -103,13 +107,13 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
-		printf("%02x", hashToCrack[i]);
+		printf("%02hx", genHash[i]);
 		//rintf("%s : %d\n", passwordString, hash[i]);
 	}
 	printf("\n");
 }
 
-void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCrack, int maxLength) {
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
 	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
@@ -136,7 +140,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCr
 		if (currentLength == 1) {
 			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
-				crackHash(arrayOfCharsets, passwordString, hashToCrack, currentLength);
+				crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
 			}
 		}
 
@@ -148,7 +152,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashToCr
 		else {
 			while (charsetBeginPtr < charsetEndPtr) {
 				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				crackHash(arrayOfCharsets, passwordString, hashToCrack, currentLength);
+				crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
 			}
 		}
 
