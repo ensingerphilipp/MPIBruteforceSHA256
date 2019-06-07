@@ -55,13 +55,18 @@ int main(int argc, char** argv) {
 	hashString = calloc(1, strlen(argv[optind]));
 	strcpy(hashString, argv[optind]);
 	hashHex = calloc(1, strlen(hashString) / 2);
-	hexToBytes(hashString, hashHex, strlen(hashString), NULL)
+	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
 	
 
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash '%02hx' with Charset '%s' and splitCharset %s for passwords with max length '%d' on Node %d\n", hashHex, charset, splitCharset, length, world_rank);
+	printf("Starting Compute for Hash ");
+	for (int i = 0; i < strlen(hashString) / 2; i++)
+	{
+		printf("%02hx", hashHex[i]);
+	}
+	printf("with Charset '%s'and splitCharset% s for passwords with max length '%d' on Node% d\n", charset, splitCharset, length, world_rank);
 	bruteForceSha256(charset, splitCharset, hashHex, length);
 
 	// Finalize the MPI environment.
