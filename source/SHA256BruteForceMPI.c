@@ -147,11 +147,13 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 	SHA256_Final(genHash, &sha256);
 	i = 0;
 
-	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
-	{
-		printf("%02hx", genHash[i]);
+	while (i <SHA256_DIGEST_LENGTH) {
+		if (*genHash != *hashHex) break;
+		i++;
 	}
-	printf("\n");
+
+	if (i == SHA256_DIGEST_LENGTH) printf("HASH FOUND! Password: %s", passwordString);
+
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength) {
