@@ -12,7 +12,8 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
-unsigned char* hexstr_to_ucharByte(char* hexstr);
+int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
+
 
 int main(int argc, char** argv) {
 	int opt;
@@ -51,10 +52,10 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	hashString = malloc(strlen(argv[optind]));
+	hashString = calloc(1, strlen(argv[optind]));
 	strcpy(hashString, argv[optind]);
-	hashHex = malloc(strlen(hashString));
-	HexToBin(hashString, hashHex, strlen(hashString));
+	hashHex = calloc(1, strlen(hashString) / 2);
+	hexToBytes(hashString, hashHex, strlen(hashString), NULL)
 	
 
 	// Generate the SplittedCharset
@@ -71,31 +72,37 @@ int main(int argc, char** argv) {
 	free(hashString);
 }
 
-unsigned char HexChar(char c)
-{
-	if ('0' <= c && c <= '9') return (unsigned char)(c - '0');
-	if ('A' <= c && c <= 'F') return (unsigned char)(c - 'A' + 10);
-	if ('a' <= c && c <= 'f') return (unsigned char)(c - 'a' + 10);
-	return 0xFF;
-}
-
-int HexToBin(char* s, unsigned char* buff, int length)
-{
-	int result;
-	if (!s || !buff || length <= 0) return -1;
-
-	for (result = 0; *s; ++result)
-	{
-		unsigned char msn = HexChar(*s++);
-		if (msn == 0xFF) return -1;
-		unsigned char lsn = HexChar(*s++);
-		if (lsn == 0xFF) return -1;
-		unsigned char bin = (msn << 4) + lsn;
-
-		if (length-- <= 0) return -1;
-		*buff++ = bin;
+int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen) {
+	char c;
+	int i, len;
+	unsigned char val[2];
+	if (hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X')) {
+		hex += 2;
 	}
-	return result;
+
+	len = 0;
+	while (size > 0 && *hex != '\0') {
+		for (i = 0; i < 2; i++) {
+			c = *hex++;
+			if (c >= '0' && c <= '9')
+				val[i] = c - '0';
+			else if (c >= 'a' && c <= 'f')
+				val[i] = 10 + c - 'a';
+			else if (c >= 'A' && c <= 'F')
+				val[i] = 10 + c - 'A';
+			else
+				return -1;
+		}
+		*bytes = (val[0] << 4) | val[1];
+		len++;
+		bytes++;
+		size--;
+	}
+
+	if (convertLen != NULL) {
+		*convertLen = len;
+	}
+	return 0;
 }
 
 /*
