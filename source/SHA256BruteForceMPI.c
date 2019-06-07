@@ -52,9 +52,10 @@ int main(int argc, char** argv) {
 		}
 	}
 	hashString = malloc(strlen(argv[optind]));
-	hashHex = malloc(strlen(hashString));
 	strcpy(hashString, argv[optind]);
-	hashHex = hexstr_to_ucharByte(hashString);
+	hashHex = malloc(strlen(hashString));
+	HexToBin(hashString, hashHex, strlen(hashString));
+	
 
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
@@ -70,15 +71,31 @@ int main(int argc, char** argv) {
 	free(hashString);
 }
 
-unsigned char* hexstr_to_ucharByte(char* hexstr)
+unsigned char HexChar(char c)
 {
-	size_t len = strlen(hexstr);
-	size_t final_len = len / 2;
-	unsigned char* chrs = (unsigned char*)malloc((final_len + 1) * sizeof(*chrs));
-	for (size_t i = 0, j = 0; j < final_len; i += 2, j++)
-		chrs[j] = (hexstr[i] % 32 + 9) % 25 * 16 + (hexstr[i + 1] % 32 + 9) % 25;
-	chrs[final_len] = '\0';
-	return chrs;
+	if ('0' <= c && c <= '9') return (unsigned char)(c - '0');
+	if ('A' <= c && c <= 'F') return (unsigned char)(c - 'A' + 10);
+	if ('a' <= c && c <= 'f') return (unsigned char)(c - 'a' + 10);
+	return 0xFF;
+}
+
+int HexToBin(char* s, unsigned char* buff, int length)
+{
+	int result;
+	if (!s || !buff || length <= 0) return -1;
+
+	for (result = 0; *s; ++result)
+	{
+		unsigned char msn = HexChar(*s++);
+		if (msn == 0xFF) return -1;
+		unsigned char lsn = HexChar(*s++);
+		if (lsn == 0xFF) return -1;
+		unsigned char bin = (msn << 4) + lsn;
+
+		if (length-- <= 0) return -1;
+		*buff++ = bin;
+	}
+	return result;
 }
 
 /*
