@@ -5,19 +5,21 @@
 #include <getopt.h>
 #include <string.h>
 #include <openssl/sha.h>
+#include <assert.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
+unsigned char* hexstr_to_ucharByte(char* hexstr);
 
 int main(int argc, char** argv) {
 	int opt;
 	int length;
 	char* splitCharset;
 	char* charset;
-	char* hashChar;
+	char* hashString;
 	unsigned char* hashHex;
 
 	// Initialize the MPI environment
@@ -49,10 +51,10 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	hashChar = malloc(strlen(argv[optind]));
-	hashHex = malloc(strlen(hashChar));
-	strcpy(hashChar, argv[optind]);
-	hashHex = (unsigned char)strtol(hashChar, NULL, 16);
+	hashString = malloc(strlen(argv[optind]));
+	hashHex = malloc(strlen(hashString));
+	strcpy(hashString, argv[optind]);
+	hashHex = hexstr_to_ucharByte(hashString);
 
 	// Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
@@ -65,7 +67,18 @@ int main(int argc, char** argv) {
 	free(charset);
 	free(splitCharset);
 	free(hashHex);
-	free(hashChar);
+	free(hashString);
+}
+
+unsigned char* hexstr_to_ucharByte(char* hexstr)
+{
+	size_t len = strlen(hexstr);
+	size_t final_len = len / 2;
+	unsigned char* chrs = (unsigned char*)malloc((final_len + 1) * sizeof(*chrs));
+	for (size_t i = 0, j = 0; j < final_len; i += 2, j++)
+		chrs[j] = (hexstr[i] % 32 + 9) % 25 * 16 + (hexstr[i + 1] % 32 + 9) % 25;
+	chrs[final_len] = '\0';
+	return chrs;
 }
 
 /*
@@ -108,7 +121,6 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
 		printf("%02hx", genHash[i]);
-		//rintf("%s : %d\n", passwordString, hash[i]);
 	}
 	printf("\n");
 }
