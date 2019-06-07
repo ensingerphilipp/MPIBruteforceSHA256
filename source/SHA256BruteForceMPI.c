@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 	{
 		printf("%02hx", hashHex[i]);
 	}
-	printf("with Charset '%s'and splitCharset% s for passwords with max length '%d' on Node% d\n", charset, splitCharset, length, world_rank);
+	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n", charset, splitCharset, length, world_rank);
 	bruteForceSha256(charset, splitCharset, hashHex, length);
 
 	// Finalize the MPI environment.
