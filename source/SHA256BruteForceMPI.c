@@ -12,7 +12,8 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
 int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
 int i = 0;
-static char* crackedPassword;
+int statusFlag = -1;
+int bufferCount = 1;
 MPI_Status status;
 MPI_Request request = MPI_REQUEST_NULL;
 
@@ -58,7 +59,6 @@ int main(int argc, char** argv) {
 	strcpy(hashString, argv[optind]);
 	hashHex = calloc(1, strlen(hashString) / 2);
 	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
-	crackedPassword = NULL;
 	
 
 	// Generate the SplittedCharset
@@ -150,7 +150,13 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				if (genHash[i] != *hashHex) break;
 				hashHex++;
 			}
-			if (i == SHA256_DIGEST_LENGTH) printf("\n\nHASH FOUND! Password: %s\n", passwordString);
+			if (i == SHA256_DIGEST_LENGTH)
+			{
+				printf("\n\nHASH FOUND! Password: %s\n\n", passwordString);
+				statusFlag = 2;
+				MPI_Isend(&statusFlag, bufferCount, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+				statusFlag = 1;
+			}
 			hashHex = hashHexBeginPtr;
 		}
 
@@ -213,14 +219,11 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 			offset--;
 		}
 	}  
-	
-	printf("Node : %d has intervall %d and offset %d\n", world_rank, intervall, offset);
 	char* splitCharset = malloc(intervall);
 	int i;
 	for (i = offset; i < offset + intervall; i++) {
 		splitCharset[i - offset] = charset[i];
 	}
-	printf("Node : %d writing stringEND to %d\n", world_rank, i - offset);
 	splitCharset[i - offset] = '\0';
 	return splitCharset;
 }
