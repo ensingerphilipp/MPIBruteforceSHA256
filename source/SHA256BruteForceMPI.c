@@ -175,7 +175,6 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		/*Check MPI COMM */
 
 		if (!recvComplete){
-			printf("InnerrecvComplete Node %d = False\n", world_rank);
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		} else {
 			printf("Node %d return statusFlag is: %d\n", world_rank, statusFlag);
