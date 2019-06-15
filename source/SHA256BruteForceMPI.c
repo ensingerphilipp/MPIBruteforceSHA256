@@ -13,8 +13,12 @@ int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigne
 int i = 0;
 int statusFlag = -1;
 int bufferCount = 1;
-MPI_Status status;
-MPI_Request request = MPI_REQUEST_NULL;
+MPI_Status recvStatus;
+MPI_Request recvRequest = MPI_REQUEST_NULL;
+MPI_Status sendStatus;
+MPI_Request sendRequest = MPI_REQUEST_NULL;
+int sendComplete = 0;
+int recvComplete = 0;
 
 int main(int argc, char** argv) {
 	int opt;
@@ -68,8 +72,15 @@ int main(int argc, char** argv) {
 	{
 		printf("%02hx", hashHex[i]);
 	}
-	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n", charset, splitCharset, length, world_rank);
+	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n\n", charset, splitCharset, length, world_rank);
+	MPI_Irecv(&statusFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
+	if (!recvComplete) {
+		MPI_Wait(&recvRequest, &recvStatus);
+	}
+	if (world_rank == 0){
+		printf("Master: Password was found by Node %d", statusFlag);
+	}
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
@@ -150,11 +161,20 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				hashHex++;
 			}
 			if (i == SHA256_DIGEST_LENGTH){
-				printf("\n\nHASH FOUND! Password: %s\n\n", passwordString);
+				printf("\n\nNode %d: Password was found: %s\n\n", world_rank, passwordString);
 				statusFlag = world_rank;
-				MPI_Isend(&statusFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD, &request);
+				MPI_Isend(&statusFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD, &sendRequest);
+				MPI_Wait(&sendRequest, &sendStatus);
 			}
 			hashHex = hashHexBeginPtr;
+		}
+
+		/*Check MPI COMM */
+
+		if (!recvComplete){
+			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
+		} else {
+			return;
 		}
 
 		/*
