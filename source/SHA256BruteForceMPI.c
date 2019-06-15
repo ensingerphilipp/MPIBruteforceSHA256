@@ -13,6 +13,8 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
 int i = 0;
 static char* crackedPassword;
+MPI_Status status;
+MPI_Request request = MPI_REQUEST_NULL;
 
 int main(int argc, char** argv) {
 	int opt;
@@ -34,6 +36,7 @@ int main(int argc, char** argv) {
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	int name_len;
 	MPI_Get_processor_name(processor_name, &name_len);
+
   
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
