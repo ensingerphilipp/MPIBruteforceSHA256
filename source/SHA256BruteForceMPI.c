@@ -176,22 +176,12 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			increment the counter which is used to determine if the array has to be extended
 		*/
 
-	/*	for (i = currentLength - 1, counter = 0; i >= 0; i--) {
+		for (i = currentLength - 1, counter = 0; i >= 0; i--) {
 			if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
 				counter++;
 			} else if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
 				counter++;
 			} else break;
-		}*/
-
-		for (i = currentLength - 1, counter = 0; i >= 0; i--) {
-			if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
-				counter++;
-			}
-			else if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
-				counter++;
-			}
-			else break;
 		}
 
 		/*
@@ -200,6 +190,11 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		*/
 
 		if (counter != currentLength) {
+			if (!(!arrayOfCharsets[currentLength - counter - 1]++)) {
+			}
+			else {
+				printf("arrayOfCharsets on Position %d was null when trying to access and increment\n", currentLength - counter - 1);
+			}
 			for (i = currentLength - 1; i >= currentLength - counter; i--) {
 				arrayOfCharsets[i] = charset;
 			}
