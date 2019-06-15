@@ -87,15 +87,6 @@ int main(int argc, char** argv) {
 	char* charset;
 	char* hashString;
 	unsigned char* hashHex;
-	char* charsetBeginPtr = charset;
-	char* splitCharsetBeginPtr = splitCharset;
-	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
-	char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
-	char** arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
-	char* passwordString = malloc(maxLength + 1);
-	unsigned char* hashHexBeginPtr = hashHex;
-	int currentLength = 1;
-	int counter = 0;
 
 	// Initialize the MPI environment
 	MPI_Init(NULL, NULL);
@@ -146,6 +137,15 @@ int main(int argc, char** argv) {
 	//
 	//
 	//BruteforceFunction
+	char* charsetBeginPtr = charset;
+	char* splitCharsetBeginPtr = splitCharset;
+	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
+	char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
+	char** arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
+	char* passwordString = malloc(maxLength + 1);
+	unsigned char* hashHexBeginPtr = hashHex;
+	int currentLength = 1;
+	int counter = 0;
 		/*
 		Loop while maxLength of arrayOfCharsets is <= the maximum password maxLength specified
 	*/
