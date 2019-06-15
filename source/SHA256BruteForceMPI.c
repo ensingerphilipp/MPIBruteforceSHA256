@@ -8,8 +8,7 @@
 #include <assert.h>
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
-void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength);
-void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength, int world_rank);
 int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
 int i = 0;
 int statusFlag = -1;
