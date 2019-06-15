@@ -137,8 +137,6 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 	int currentLength = 1;
 	int counter = 0;
 
-
-
 	/*
 		Loop while length of arrayOfCharsets is <= the maximum password length specified
 	*/
@@ -221,7 +219,9 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		}
 		charsetBeginPtr = charset;
 	}
+	printf("Exiting bruteforce on Node %d", world_rank);
 	free(arrayOfCharsets);
+	printf("after free %d", world_rank);
 }
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
