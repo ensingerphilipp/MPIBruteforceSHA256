@@ -76,7 +76,9 @@ int main(int argc, char** argv) {
 	MPI_Irecv(&statusFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	if (!recvComplete) {
+		printf("Node %d waiting", world_rank);
 		MPI_Wait(&recvRequest, &recvStatus);
+		printf("Node %d done waiting", world_rank);
 	}
 	if (world_rank == 0){
 		printf("Master: Password was found by Node %d", statusFlag);
