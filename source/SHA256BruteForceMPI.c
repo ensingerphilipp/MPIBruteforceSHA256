@@ -110,26 +110,6 @@ int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigne
 	return 0;
 }
 
-
-void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len) {
-	for (i = 0; i < len; i++) {
-		passwordString[i] = *arrayOfCharsets[i];
-	}
-	passwordString[i] = '\0';
-	//printf("cracking Hash with Password: %s\n", passwordString);
-	unsigned char genHash[SHA256_DIGEST_LENGTH];
-	SHA256_CTX sha256;
-	SHA256_Init(&sha256);
-	SHA256_Update(&sha256, passwordString, len);
-	SHA256_Final(genHash, &sha256);
-	
-	for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-		if (genHash[i] != *hashHex) break;
-		hashHex++;
-	}
-	if (i == SHA256_DIGEST_LENGTH) printf("\n\nHASH FOUND! Password: %s\n", passwordString);
-}
-
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
@@ -137,6 +117,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 	char* splitCharsetEndPtr = splitCharsetBeginPtr + strlen(splitCharset);
 	char** arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
 	char* passwordString = malloc(maxLength + 1);
+	unsigned char* hashHexBeginPtr = hashHex;
 	int currentLength = 1;
 	int counter = 0;
 
@@ -150,7 +131,24 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 
 		while (charsetBeginPtr < charsetEndPtr) {
 			arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-			crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
+			// Hash Cracking:
+			for (i = 0; i < currentLength; i++) {
+				passwordString[i] = *arrayOfCharsets[i];
+			}
+			passwordString[i] = '\0';
+			//printf("cracking Hash with Password: %s\n", passwordString);
+			unsigned char genHash[SHA256_DIGEST_LENGTH];
+			SHA256_CTX sha256;
+			SHA256_Init(&sha256);
+			SHA256_Update(&sha256, passwordString, currentLength);
+			SHA256_Final(genHash, &sha256);
+
+			for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+				if (genHash[i] != *hashHex) break;
+				hashHex++;
+			}
+			if (i == SHA256_DIGEST_LENGTH) printf("\n\nHASH FOUND! Password: %s\n", passwordString);
+			hashHex = hashHexBeginPtr;
 		}
 
 		/*
@@ -178,13 +176,13 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			for (i = currentLength - 1; i >= currentLength - counter; i--) {
 				arrayOfCharsets[i] = charset;
 			}
-
 		} else {
 
 		/*
 			reset the first Charset to the splitcharset
 			Reset all other Charsets to the normal charset
 		*/
+
 			arrayOfCharsets[0] = splitCharset;
 			for (int i = 1; i <= currentLength; i++) {
 				arrayOfCharsets[i] = charset;
