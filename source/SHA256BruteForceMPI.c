@@ -148,10 +148,10 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 
 	while (currentLength <= maxLength) {
 
-			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
-				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-				crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
-
+		while (splitCharsetBeginPtr < splitCharsetEndPtr) {
+			arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
+			crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
+		}
 		/*
 			For all charsets --> if splitCharset on position 0 has reached the end or any other charset has reached the end -->
 			increment the counter which is used to determine if the array has to be extended
