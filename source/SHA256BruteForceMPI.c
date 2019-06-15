@@ -172,9 +172,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		*/
 
 		if (counter != currentLength) {
-			if (!(!arrayOfCharsets[currentLength - counter - 1]++)) {
-			}
-			else {
+			if (!arrayOfCharsets[currentLength - counter - 1]++) {
 				printf("arrayOfCharsets on Position %d was null when trying to access and increment\n", currentLength - counter - 1);
 			}
 			for (i = currentLength - 1; i >= currentLength - counter; i--) {
