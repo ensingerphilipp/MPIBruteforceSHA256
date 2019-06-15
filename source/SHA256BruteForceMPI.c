@@ -175,7 +175,6 @@ int main(int argc, char** argv) {
 				sendFlag = world_rank;
 				MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
 				printf("Node %d SEND after PW complete.", world_rank);
-				return;
 			}
 			hashHex = hashHexBeginPtr;
 		}
@@ -186,8 +185,7 @@ int main(int argc, char** argv) {
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		}
 		else {
-
-			return;
+			printf("Test complete Node %d\n", world_rank);
 		}
 
 		/*
