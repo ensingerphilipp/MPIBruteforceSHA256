@@ -165,8 +165,9 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			if (i == SHA256_DIGEST_LENGTH){
 				printf("\n\nNode %d: Password was found: %s\n\n", world_rank, passwordString);
 				statusFlag = world_rank;
-				MPI_Isend(&statusFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD, &sendRequest);
-				MPI_Wait(&sendRequest, &sendStatus);
+				MPI_Send(&statusFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
+				printf("Node %d SEND after PW complete.", world_rank);
+				return;
 			}
 			hashHex = hashHexBeginPtr;
 		}
@@ -174,11 +175,11 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		/*Check MPI COMM */
 
 		if (!recvComplete){
-			printf("InnerrecvComplete Node %d = False", world_rank);
+			printf("InnerrecvComplete Node %d = False\n", world_rank);
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		} else {
-			printf("Node %d break", world_rank);
-			break;
+			printf("Node %d return\n", world_rank);
+			return;
 		}
 
 		/*
