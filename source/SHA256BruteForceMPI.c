@@ -176,6 +176,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		if (!recvComplete){
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		} else {
+			printf("Node %d break", world_rank);
 			break;
 		}
 
