@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
 	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n\n", charset, splitCharset, length, world_rank);
 	MPI_Irecv(&statusFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
+	printf("Node %d returned with statusFlag: ", world_rank, statusFlag);
 	if (!recvComplete) {
 		printf("Node %d waiting", world_rank);
 		MPI_Wait(&recvRequest, &recvStatus);
@@ -177,7 +178,6 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		if (!recvComplete){
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		} else {
-			printf("Node %d return statusFlag is: %d\n", world_rank, statusFlag);
 			return;
 		}
 
