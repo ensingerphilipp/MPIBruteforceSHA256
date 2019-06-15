@@ -124,8 +124,7 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 	SHA256_Final(genHash, &sha256);
 	
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-		if (*genHash != *hashHex) break;
-		genHash++;
+		if (genHash[i] != *hashHex) break;
 		hashHex++;
 	}
 	if (i == SHA256_DIGEST_LENGTH) printf("HASH FOUND! Password: %s", passwordString);
