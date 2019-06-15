@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
 		printf("%02hx", hashHex[i]);
 	}
 	printf(" with Charset %s and splitCharset %s for passwords with max maxLength %d on Node %d\n\n", charset, splitCharset, maxLength, world_rank);
-	MPI_Irecv(&statusFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
+	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	//
 	//
 	//BruteforceFunction
@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
 	printf("Node %d returned with statusFlag: %d", world_rank, recvFlag);
 	while (!recvComplete) {
 		printf("Node %d waiting", world_rank);
-		MPI_Test(&recvRequest, &recvStatus);
+		MPI_Wait(&recvRequest, &recvStatus);
 		printf("Node %d done waiting", world_rank);
 	}
 	if (world_rank == 0){
