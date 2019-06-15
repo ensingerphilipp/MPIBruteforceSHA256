@@ -116,7 +116,7 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 		passwordString[i] = *arrayOfCharsets[i];
 	}
 	passwordString[i] = '\0';
-	printf("cracking Hash with Password: %s\n", passwordString);
+	//printf("cracking Hash with Password: %s\n", passwordString);
 	unsigned char genHash[SHA256_DIGEST_LENGTH];
 	SHA256_CTX sha256;
 	SHA256_Init(&sha256);
