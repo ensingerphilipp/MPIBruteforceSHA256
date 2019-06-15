@@ -9,11 +9,10 @@
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size);
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength);
-void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
-void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length);
 void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len);
 int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
-
+int i = 0;
+static char* crackedPassword;
 
 int main(int argc, char** argv) {
 	int opt;
@@ -56,6 +55,7 @@ int main(int argc, char** argv) {
 	strcpy(hashString, argv[optind]);
 	hashHex = calloc(1, strlen(hashString) / 2);
 	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
+	crackedPassword = NULL;
 	
 
 	// Generate the SplittedCharset
@@ -110,31 +110,8 @@ int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigne
 	return 0;
 }
 
-/*
-	Reset the first Charset to the splitcharset
-	Reset all other Charsets to the normal charset
-*/
-
-void resetArray(char** arrayOfCharsets, char* charset, char* splitCharset, int length) {
-	arrayOfCharsets[0] = splitCharset;
-	for (int i = 1; i <= length; i++) {
-		arrayOfCharsets[i] = charset;
-	}
-}
-
-/*
-	Print the first character of every charset in the arrayOfCharsets
-*/
-
-void printArray(char** arrayOfCharsets, int len) {
-		for (int i = 0; i < len; i++) {
-			putchar(*arrayOfCharsets[i]);
-		}
-		putchar('\n');
-}
 
 void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hashHex, int len) {
-	int i;
 	for (i = 0; i < len; i++) {
 		passwordString[i] = *arrayOfCharsets[i];
 	}
@@ -145,15 +122,11 @@ void crackHash(char** arrayOfCharsets, char* passwordString, unsigned char* hash
 	SHA256_Init(&sha256);
 	SHA256_Update(&sha256, passwordString, len);
 	SHA256_Final(genHash, &sha256);
-	i = 0;
-
-	while (i <SHA256_DIGEST_LENGTH) {
+	
+	for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
 		if (*genHash != *hashHex) break;
-		i++;
 	}
-	printf("i: %d , Digest: %d", i, SHA256_DIGEST_LENGTH);
 	if (i == SHA256_DIGEST_LENGTH) printf("HASH FOUND! Password: %s", passwordString);
-
 }
 
 void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength) {
@@ -164,8 +137,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 	char** arrayOfCharsets = (char**)malloc(sizeof(char*) * (maxLength + 1));
 	char* passwordString = malloc(maxLength + 1);
 	int currentLength = 1;
-	int i;
-	int counter;
+	int counter = 0;
 
 
 
@@ -180,11 +152,11 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			(Only fill first position with splitCharset)
 		*/
 
-		if (currentLength == 1) {
-			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
-				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
+		if (currentLength != 1) {
+			while (charsetBeginPtr < charsetEndPtr) {
+				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
 				crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
-			}
+			}	
 		}
 
 		/*
@@ -193,8 +165,8 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		*/
 
 		else {
-			while (charsetBeginPtr < charsetEndPtr) {
-				arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
+			while (splitCharsetBeginPtr < splitCharsetEndPtr) {
+				arrayOfCharsets[currentLength - 1] = splitCharsetBeginPtr++;
 				crackHash(arrayOfCharsets, passwordString, hashHex, currentLength);
 			}
 		}
@@ -205,40 +177,32 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		*/
 
 		for (i = currentLength - 1, counter = 0; i >= 0; i--) {
-			if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
+			if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
 				counter++;
-			}
-			else if (*arrayOfCharsets[i] == *(charsetEndPtr - 1)) {
+			} else if (i == 0 && *arrayOfCharsets[i] == *(splitCharsetEndPtr - 1)) {
 				counter++;
-			}
-			else break;
+			} else break;
 		}
 		/*
 			When the counter is currentLength --> every character has reached the end of the charset -->
 			reset the Array Of Charsets and increase Length
 		*/
 
-		if (counter == currentLength) {
-			resetArray(arrayOfCharsets, charset, splitCharset, currentLength);
-			currentLength++;
-		}
-
-		/*
-			Else increment the outer charsetPointer (splitCharsetPointer) by
-			one (set next character) and reset all inner charsets
-		*/
-
-		else {
-			// Increment Pointer at charset and if it was null print Error
-			if (!(!arrayOfCharsets[currentLength - counter - 1]++)) {
-			}
-			else {
-				printf("arrayOfCharsets on Position %d was null when trying to access and increment\n", currentLength - counter - 1);
-			}
-
+		if (counter != currentLength) {
 			for (i = currentLength - 1; i >= currentLength - counter; i--) {
 				arrayOfCharsets[i] = charset;
 			}
+
+		} else {
+			/*
+	Reset the first Charset to the splitcharset
+	Reset all other Charsets to the normal charset
+*/
+			arrayOfCharsets[0] = splitCharset;
+			for (int i = 1; i <= currentLength; i++) {
+				arrayOfCharsets[i] = charset;
+			}
+			currentLength++;
 		}
 		charsetBeginPtr = charset;
 	}
