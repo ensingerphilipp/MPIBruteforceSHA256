@@ -242,6 +242,7 @@ int main(int argc, char** argv) {
 	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	printf("Node %d returned with recvFlag: %d \n", world_rank, recvFlag);
+	printf("recvComplete is %d on Node %d\n", recvComplete, world_rank);
 	while (!recvComplete) {
 		printf("Node %d waiting\n", world_rank);
 		MPI_Wait(&recvRequest, &recvStatus);
