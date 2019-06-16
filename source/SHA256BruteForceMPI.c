@@ -97,10 +97,10 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				if (i == SHA256_DIGEST_LENGTH) {
 					t = clock() - t;
 					double time_taken = ((double)t) / CLOCKS_PER_SEC; 
-					printf("\n=======================================\n");
+					printf("\n===================================================\n");
 					printf("Node %d: Password was found: %s\n", world_rank, passwordString);
-					printf("Node %d: It took %f seconds to execute.\n", world_rank, time_taken);
-					printf("=======================================\n\n");
+					printf("Node %d: It took %f seconds to calculate.\n", world_rank, time_taken);
+					printf("=====================================================\n\n");
 					sendFlag = world_rank;
 					MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
 					free(arrayOfCharsets);
