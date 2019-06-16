@@ -243,11 +243,11 @@ int main(int argc, char** argv) {
 	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n\n", charset, splitCharset, length, world_rank);
 	MPI_Irecv(&recvComplete, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
-	printf("Node %d returned with statusFlag: %d", world_rank, recvFlag);
+	printf("Node %d returned with statusFlag: %d \n", world_rank, recvFlag);
 	while (!recvComplete) {
-		printf("Node %d waiting", world_rank);
-		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
-		printf("Node %d done waiting", world_rank);
+		printf("Node %d waiting\n", world_rank);
+		MPI_Wait(&recvRequest, &recvStatus);
+		printf("Node %d done waiting\n", world_rank);
 	}
 	if (world_rank == 0){
 		printf("Master: Password was found by Node %d", recvFlag);
