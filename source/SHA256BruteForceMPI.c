@@ -86,7 +86,6 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				passwordString[i] = *arrayOfCharsets[i];
 			}
 			passwordString[i] = '\0';
-			printf("Node %d: Trying: %s\n", world_rank, passwordString);
 
 			unsigned char genHash[SHA256_DIGEST_LENGTH];
 			SHA256_CTX sha256;
