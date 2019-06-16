@@ -94,10 +94,10 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				printf("\n\nNode %d: Password was found: %s\n\n", world_rank, passwordString);
 				sendFlag = world_rank;
 				MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
-				printf("Node %d SEND after PW complete.", world_rank);
-				printf("Exiting bruteforce on Node %d", world_rank);
+				printf("Node %d SEND after PW complete.\n", world_rank);
+				printf("Exiting bruteforce on Node %d\n", world_rank);
 				free(arrayOfCharsets);
-				printf("after free %d", world_rank);
+				printf("after send pw %d\n", world_rank);
 				return;
 			}
 			hashHex = hashHexBeginPtr;
