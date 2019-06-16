@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
 				printf("Node %d is before Barrier", world_rank);
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Test(&recvRequest, &recvComplete, &recvStatus);
-				if (recvComplete != 0) {
+				if (recvComplete == 0) {
 					printf("Master: Password could not be found.\n");
 					MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 				}
