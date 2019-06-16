@@ -243,14 +243,12 @@ int main(int argc, char** argv) {
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	printf("Node %d returned with recvFlag: %d \n", world_rank, recvFlag);
 	printf("recvComplete is %d on Node %d\n", recvComplete, world_rank);
-	while (!recvComplete) {
-		printf("Node %d waiting\n", world_rank);
-		MPI_Wait(&recvRequest, &recvStatus);
-		printf("Node %d done waiting\n", world_rank);
+	while (recvComplete == 0) {
+		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 	}
-	printf("After waiting Node %d", world_rank);
+	printf("After Test Node %d\n", world_rank);
 	if (world_rank == 0){
-		printf("Master: Password was found by Node %d", recvFlag);
+		printf("Master: Password was found by Node %d\n", recvFlag);
 	}
 	printf("ende. %d", world_rank);
 
