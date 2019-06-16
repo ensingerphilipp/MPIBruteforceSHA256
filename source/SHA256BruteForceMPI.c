@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			if (recvFlag == -1) {
-				return;
+				return 0;
 			}
 			if (recvFlag != -1 && recvFlag != sendFlag) {
 				printf("Node %d: Password was found by another Node (%d).\n", world_rank, recvFlag);
