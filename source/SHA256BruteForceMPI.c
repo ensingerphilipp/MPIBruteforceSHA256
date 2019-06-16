@@ -243,13 +243,32 @@ int main(int argc, char** argv) {
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	printf("Node %d returned with recvFlag: %d \n", world_rank, recvFlag);
 	printf("recvComplete is %d on Node %d\n", recvComplete, world_rank);
-	while (recvComplete == 0) {
+		if (world_rank == 0) {
 		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
-	}
-	printf("After Test Node %d\n", world_rank);
-	if (world_rank == 0){
-		printf("Master: Password was found by Node %d\n", recvFlag);
-	}
+			if (recvFlag == -1 && sendFlag == -1) {
+				MPI_Barrier(MPI_COMM_WORLD);
+				MPI_Test(&recvRequest, &recvComplete, &recvStatus);
+				if (recvComplete != 0) {
+					printf("Master: Password could not be found.\n");
+					MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
+				}
+			}
+			if (recvFlag != -1) {
+				printf("Master: Password was found by Node %d\n", recvFlag);
+				MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
+			}
+		}
+		if (world_rank != 0) {
+			MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
+			if (recvFlag == -1) {
+				return;
+			}
+			if (recvFlag != -1 && recvFlag != sendFlag) {
+				printf("Node %d: Password was found by another Node (%d).\n", world_rank, recvFlag);
+			}
+		}
+	
 	printf("ende. %d", world_rank);
 
 	// Finalize the MPI environment.
