@@ -86,6 +86,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				passwordString[i] = *arrayOfCharsets[i];
 			}
 			passwordString[i] = '\0';
+			printf("Node %d: Trying Password: %s", world_rank, passwordString);
 
 			unsigned char genHash[SHA256_DIGEST_LENGTH];
 			SHA256_CTX sha256;
@@ -243,7 +244,7 @@ int main(int argc, char** argv) {
 	hashHex = calloc(1, strlen(hashString) / 2);
 	err = hexToBytes(hashString, hashHex, strlen(hashString), NULL);
 	if (err == -1) {
-		printf("Unsupported Character in Charset %s\n", charset);
+		printf("Unsupported Character in Hash %s\n", hashString);
 		free(charset);
 		free(hashHex);
 		free(hashString);
