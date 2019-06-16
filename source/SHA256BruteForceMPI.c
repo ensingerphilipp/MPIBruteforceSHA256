@@ -6,6 +6,7 @@
 #include <string.h>
 #include <openssl/sha.h>
 #include <assert.h>
+#include <time.h>
 
 int i = 0;
 int sendFlag = -1;
@@ -62,7 +63,9 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 	unsigned char* hashHexBeginPtr = hashHex;
 	int currentLength = 1;
 	int counter = 0;
-
+	clock_t t;
+	t = clock();
+	
 	/*
 		Loop while length of arrayOfCharsets is <= the maximum password length specified
 	*/
@@ -92,8 +95,11 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 					hashHex++;
 				}
 				if (i == SHA256_DIGEST_LENGTH) {
+					t = clock() - t;
+					double time_taken = ((double)t) / CLOCKS_PER_SEC; 
 					printf("\n=======================================\n");
 					printf("Node %d: Password was found: %s\n", world_rank, passwordString);
+					printf("Node %d: It took %f seconds to execute.\n", world_rank, time_taken);
 					printf("=======================================\n\n");
 					sendFlag = world_rank;
 					MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
