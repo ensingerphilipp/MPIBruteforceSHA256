@@ -55,88 +55,7 @@ int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigne
 	return 0;
 }
 
-char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
-	int intervall = (strlen(charset) / world_size);
-	int offset = intervall * world_rank;
-	int rest = strlen(charset) % world_size;
-
-	if (rest != 0) {
-		for (int i = 0; i <= rest; i++) {
-			if (world_size % (world_rank + 1) == i) {
-				intervall++;
-				offset++;
-			}
-		}
-		if (world_rank == 0) {
-			offset--;
-		}
-	}
-	char* splitCharset = malloc(intervall);
-	int i;
-	for (i = offset; i < offset + intervall; i++) {
-		splitCharset[i - offset] = charset[i];
-	}
-	splitCharset[i - offset] = '\0';
-	return splitCharset;
-}
-
-int main(int argc, char** argv) {
-	int opt;
-	int maxLength;
-	char* splitCharset;
-	char* charset;
-	char* hashString;
-	unsigned char* hashHex;
-
-	// Initialize the MPI environment
-	MPI_Init(NULL, NULL);
-	// Get the number of processes
-	int world_size;
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	// Get the rank of the process
-	int world_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	// Get the name of the processor
-	char processor_name[MPI_MAX_PROCESSOR_NAME];
-	int name_len;
-	MPI_Get_processor_name(processor_name, &name_len);
-
-  
-	while ((opt = getopt(argc, argv, "l:c:")) != -1){
-		switch (opt){
-		case 'l':
-			maxLength = atoi(optarg);
-			break;
-		case 'c':
-			charset = malloc(strlen(optarg));
-			strcpy(charset, optarg);
-			break;
-		case ':':
-			break;
-		case '?' :
-			printf("unknown option: %c\n", optopt);
-			break;
-		}
-	}
-	hashString = calloc(1, strlen(argv[optind]));
-	strcpy(hashString, argv[optind]);
-	hashHex = calloc(1, strlen(hashString) / 2);
-	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
-	
-
-	// Generate the SplittedCharset
-	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
-	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash ");
-	for (int i = 0; i < strlen(hashString) / 2; i++)
-	{
-		printf("%02hx", hashHex[i]);
-	}
-	printf(" with Charset %s and splitCharset %s for passwords with max maxLength %d on Node %d\n\n", charset, splitCharset, maxLength, world_rank);
-	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
-	//
-	//
-	//BruteforceFunction
+void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength, int world_rank) {
 	char* charsetBeginPtr = charset;
 	char* splitCharsetBeginPtr = splitCharset;
 	char* charsetEndPtr = charsetBeginPtr + strlen(charset);
@@ -146,8 +65,9 @@ int main(int argc, char** argv) {
 	unsigned char* hashHexBeginPtr = hashHex;
 	int currentLength = 1;
 	int counter = 0;
-		/*
-		Loop while maxLength of arrayOfCharsets is <= the maximum password maxLength specified
+
+	/*
+		Loop while length of arrayOfCharsets is <= the maximum password length specified
 	*/
 
 	while (currentLength <= maxLength) {
@@ -175,6 +95,10 @@ int main(int argc, char** argv) {
 				sendFlag = world_rank;
 				MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
 				printf("Node %d SEND after PW complete.", world_rank);
+				printf("Exiting bruteforce on Node %d", world_rank);
+				free(arrayOfCharsets);
+				printf("after free %d", world_rank);
+				return;
 			}
 			hashHex = hashHexBeginPtr;
 		}
@@ -185,7 +109,10 @@ int main(int argc, char** argv) {
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		}
 		else {
-			printf("Test complete Node %d\n", world_rank);
+			printf("Exiting bruteforce on Node %d", world_rank);
+			free(arrayOfCharsets);
+			printf("after free %d", world_rank);
+			return;
 		}
 
 		/*
@@ -232,24 +159,103 @@ int main(int argc, char** argv) {
 		charsetBeginPtr = charset;
 	}
 	printf("Exiting bruteforce on Node %d", world_rank);
-	
+	free(arrayOfCharsets);
 	printf("after free %d", world_rank);
-	//End bruteforce Function
-	//
-	//
+}
+
+char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
+	int intervall = (strlen(charset) / world_size);
+	int offset = intervall * world_rank;
+	int rest = strlen(charset) % world_size;
+
+	if (rest != 0) {
+		for (int i = 0; i <= rest; i++) {
+			if (world_size % (world_rank + 1) == i) {
+				intervall++;
+				offset++;
+			}
+		}
+		if (world_rank == 0) {
+			offset--;
+		}
+	}
+	char* splitCharset = malloc(intervall);
+	int i;
+	for (i = offset; i < offset + intervall; i++) {
+		splitCharset[i - offset] = charset[i];
+	}
+	splitCharset[i - offset] = '\0';
+	return splitCharset;
+}
+
+int main(int argc, char** argv) {
+	int opt;
+	int length;
+	char* splitCharset;
+	char* charset;
+	char* hashString;
+	unsigned char* hashHex;
+
+	// Initialize the MPI environment
+	MPI_Init(NULL, NULL);
+	// Get the number of processes
+	int world_size;
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	// Get the rank of the process
+	int world_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+	// Get the name of the processor
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	int name_len;
+	MPI_Get_processor_name(processor_name, &name_len);
+
+  
+	while ((opt = getopt(argc, argv, "l:c:")) != -1){
+		switch (opt){
+		case 'l':
+			length = atoi(optarg);
+			break;
+		case 'c':
+			charset = malloc(strlen(optarg));
+			strcpy(charset, optarg);
+			break;
+		case ':':
+			break;
+		case '?' :
+			printf("unknown option: %c\n", optopt);
+			break;
+		}
+	}
+	hashString = calloc(1, strlen(argv[optind]));
+	strcpy(hashString, argv[optind]);
+	hashHex = calloc(1, strlen(hashString) / 2);
+	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
+	
+
+	// Generate the SplittedCharset
+	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
+	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
+	printf("Starting Compute for Hash ");
+	for (int i = 0; i < strlen(hashString) / 2; i++)
+	{
+		printf("%02hx", hashHex[i]);
+	}
+	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n\n", charset, splitCharset, length, world_rank);
+	MPI_Irecv(&statusFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
+	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	printf("Node %d returned with statusFlag: %d", world_rank, recvFlag);
 	while (!recvComplete) {
 		printf("Node %d waiting", world_rank);
-		MPI_Wait(&recvRequest, &recvStatus);
+		MPI_Test(&recvRequest, &recvStatus);
 		printf("Node %d done waiting", world_rank);
 	}
 	if (world_rank == 0){
 		printf("Master: Password was found by Node %d", recvFlag);
 	}
+	printf("ende. %d", world_rank);
 
 	// Finalize the MPI environment.
 	MPI_Finalize();
-	free(arrayOfCharsets);
 	free(charset);
 	free(splitCharset);
 	free(hashHex);
