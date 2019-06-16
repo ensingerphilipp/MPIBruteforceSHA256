@@ -247,6 +247,7 @@ int main(int argc, char** argv) {
 		MPI_Wait(&recvRequest, &recvStatus);
 		printf("Node %d done waiting\n", world_rank);
 	}
+	printf("After waiting Node %d", world_rank);
 	if (world_rank == 0){
 		printf("Master: Password was found by Node %d", recvFlag);
 	}
