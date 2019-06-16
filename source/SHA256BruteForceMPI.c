@@ -256,14 +256,16 @@ int main(int argc, char** argv) {
 			}
 			if (recvFlag != -1) {
 				printf("Master: Password was found by Node %d\n", recvFlag);
+				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			}
 		}
+		printf("After Master Function: World Rank %d\n", world_rank);
 		if (world_rank != 0) {
 			printf("Node %d is before Barrier", world_rank);
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
-			if (recvFlag != -1) {
+			if (recvFlag == -1) {
 				return 0;
 			}
 			if (recvFlag != -1 && recvFlag != sendFlag) {
