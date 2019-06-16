@@ -109,9 +109,9 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 		}
 		else {
-			printf("Exiting bruteforce on Node %d", world_rank);
+			printf("Exiting bruteforce on Node %d\n", world_rank);
 			free(arrayOfCharsets);
-			printf("after free %d", world_rank);
+			printf("after free %d\n", world_rank);
 			return;
 		}
 
