@@ -91,13 +91,12 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				hashHex++;
 			}
 			if (i == SHA256_DIGEST_LENGTH) {
-				printf("\n\nNode %d: Password was found: %s\n\n", world_rank, passwordString);
+				printf("\n=======================================\n");
+				printf("Node %d: Password was found: %s\n\n", world_rank, passwordString);
+				printf("=======================================\n\n");
 				sendFlag = world_rank;
 				MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
-				printf("Node %d SEND after PW complete.\n", world_rank);
-				printf("Exiting bruteforce on Node %d\n", world_rank);
 				free(arrayOfCharsets);
-				printf("after send pw %d\n", world_rank);
 				return;
 			}
 			hashHex = hashHexBeginPtr;
@@ -107,9 +106,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 
 		if (!recvComplete) {
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
-		}
-		else {
-			printf("Exiting bruteforce after MPI_TEST on Node %d\n", world_rank);
+		} else {
 			free(arrayOfCharsets);
 			return;
 		}
@@ -157,7 +154,6 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		}
 		charsetBeginPtr = charset;
 	}
-	printf("Exiting bruteforce after while on Node %d\n", world_rank);
 	free(arrayOfCharsets);
 }
 
@@ -230,7 +226,7 @@ int main(int argc, char** argv) {
 	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
 	
 
-	// Generate the SplittedCharset
+	//Generate the SplittedCharset
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
 	printf("Starting Compute for Hash ");
@@ -238,15 +234,16 @@ int main(int argc, char** argv) {
 	{
 		printf("%02hx", hashHex[i]);
 	}
-	printf(" with Charset %s and splitCharset %s for passwords with max length %d on Node %d\n\n", charset, splitCharset, length, world_rank);
+	printf("on Node %d\n", world_rank);
 	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
+
+	//Calling the Bruteforce Function
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
-	printf("Node %d returned with recvFlag: %d \n", world_rank, recvFlag);
-	printf("recvComplete is %d on Node %d\n", recvComplete, world_rank);
+	
+	//MPI Communication Master and Nodes
 		if (world_rank == 0) {
 		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 			if (recvFlag == -1 && sendFlag == -1) {
-				printf("Node %d is before Barrier", world_rank);
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 				if (recvComplete == 0) {
@@ -261,7 +258,6 @@ int main(int argc, char** argv) {
 			}
 		}
 		if (world_rank != 0) {
-			printf("Node %d is before Barrier", world_rank);
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			if (recvFlag == -1) {
@@ -276,9 +272,6 @@ int main(int argc, char** argv) {
 				printf("Node %d: Password was found by another Node (%d).\n", world_rank, recvFlag);
 			}
 		}
-	
-	printf("ende. %d", world_rank);
-
 	// Finalize the MPI environment.
 	free(charset);
 	free(splitCharset);
