@@ -260,7 +260,7 @@ int main(int argc, char** argv) {
 		{
 			printf("%02hx", hashHex[i]);
 		}
-	printf("on Node %d\n", world_rank);
+	printf(" on Node %d\n", world_rank);
 
 	/*
 		Set up an MPI Receiver for Communication and call the bruteForce Function
