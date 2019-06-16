@@ -197,6 +197,7 @@ char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 
 int main(int argc, char** argv) {
 	int opt;
+	int err;
 	int length;
 	char* splitCharset;
 	char* charset;
@@ -240,8 +241,15 @@ int main(int argc, char** argv) {
 	hashString = calloc(1, strlen(argv[optind]));
 	strcpy(hashString, argv[optind]);
 	hashHex = calloc(1, strlen(hashString) / 2);
-	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
-	
+	err = hexToBytes(hashString, hashHex, strlen(hashString), NULL);
+	if (err == -1) {
+		printf("Unsupported Character in Charset");
+		free(charset);
+		free(splitCharset);
+		free(hashHex);
+		free(hashString);
+		MPI_Finalize();
+	}
 	/*
 		Split the charset into parts to equally set the work loads
 	*/
