@@ -260,12 +260,16 @@ int main(int argc, char** argv) {
 				MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			}
 		}
-		printf("After Master Function: World Rank %d\n", world_rank);
 		if (world_rank != 0) {
 			printf("Node %d is before Barrier", world_rank);
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			if (recvFlag == -1) {
+				free(charset);
+				free(splitCharset);
+				free(hashHex);
+				free(hashString);
+				MPI_Finalize();
 				return 0;
 			}
 			if (recvFlag != -1 && recvFlag != sendFlag) {
@@ -276,9 +280,10 @@ int main(int argc, char** argv) {
 	printf("ende. %d", world_rank);
 
 	// Finalize the MPI environment.
-	MPI_Finalize();
 	free(charset);
 	free(splitCharset);
 	free(hashHex);
 	free(hashString);
+	MPI_Finalize();
+
 }
