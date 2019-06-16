@@ -19,6 +19,9 @@ MPI_Request sendRequest = MPI_REQUEST_NULL;
 int sendComplete = 0;
 int recvComplete = 0;
 
+/*
+	Function to convert the input Hash String to an unsigned char Byte Array
+*/
 
 int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen) {
 	char c;
@@ -83,6 +86,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 				passwordString[i] = *arrayOfCharsets[i];
 			}
 			passwordString[i] = '\0';
+			printf("Node %d: Trying: %s", world_rank, passwordString);
 
 			unsigned char genHash[SHA256_DIGEST_LENGTH];
 			SHA256_CTX sha256;
@@ -274,7 +278,7 @@ int main(int argc, char** argv) {
 				}
 			}
 			if (recvFlag != -1) {
-				printf("Master: Password was found by Node %d\n", recvFlag);
+				printf("Master: Password was found by Node %d.\n", recvFlag);
 				printf("Master: Waiting for other Nodes to finish.\n");
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
@@ -302,5 +306,4 @@ int main(int argc, char** argv) {
 	free(hashHex);
 	free(hashString);
 	MPI_Finalize();
-
 }
