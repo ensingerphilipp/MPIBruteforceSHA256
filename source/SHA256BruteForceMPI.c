@@ -246,6 +246,7 @@ int main(int argc, char** argv) {
 		if (world_rank == 0) {
 		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 			if (recvFlag == -1 && sendFlag == -1) {
+				printf("Node %d is before Barrier", world_rank);
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 				if (recvComplete != 0) {
@@ -259,9 +260,10 @@ int main(int argc, char** argv) {
 			}
 		}
 		if (world_rank != 0) {
+			printf("Node %d is before Barrier", world_rank);
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
-			if (recvFlag == -1) {
+			if (recvFlag != -1) {
 				return 0;
 			}
 			if (recvFlag != -1 && recvFlag != sendFlag) {
