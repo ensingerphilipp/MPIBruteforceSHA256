@@ -7,9 +7,6 @@
 #include <openssl/sha.h>
 #include <assert.h>
 
-//char* splitCharsetFunc(char* charset, int world_rank, int world_size);
-//void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex, int maxLength, int world_rank);
-//int hexToBytes(const char* hex, unsigned char* bytes, unsigned int size, unsigned int* convertLen);
 int i = 0;
 int sendFlag = -1;
 int recvFlag = -1;
@@ -72,37 +69,41 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 
 	while (currentLength <= maxLength) {
 
+		/*
+			While the end of the Charset is not reached -- go through the charset by incrementing the pointer and thus forming
+			a new string every time --> then create the String and generate the corresponding hash and try check if the hash equals
+			the hash that should be cracked.
+		*/
 		while (charsetBeginPtr < charsetEndPtr) {
 			arrayOfCharsets[currentLength - 1] = charsetBeginPtr++;
-			// Hash Cracking:
 			for (i = 0; i < currentLength; i++) {
 				passwordString[i] = *arrayOfCharsets[i];
 			}
 			passwordString[i] = '\0';
-			//printf("cracking Hash with Password: %s\n", passwordString);
+
 			unsigned char genHash[SHA256_DIGEST_LENGTH];
 			SHA256_CTX sha256;
 			SHA256_Init(&sha256);
 			SHA256_Update(&sha256, passwordString, currentLength);
 			SHA256_Final(genHash, &sha256);
 
-			for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-				if (genHash[i] != *hashHex) break;
-				hashHex++;
-			}
-			if (i == SHA256_DIGEST_LENGTH) {
-				printf("\n=======================================\n");
-				printf("Node %d: Password was found: %s\n\n", world_rank, passwordString);
-				printf("=======================================\n\n");
-				sendFlag = world_rank;
-				MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
-				free(arrayOfCharsets);
-				return;
-			}
+				for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+					if (genHash[i] != *hashHex) break;
+					hashHex++;
+				}
+				if (i == SHA256_DIGEST_LENGTH) {
+					printf("\n=======================================\n");
+					printf("Node %d: Password was found: %s\n", world_rank, passwordString);
+					printf("=======================================\n\n");
+					sendFlag = world_rank;
+					MPI_Send(&sendFlag, bufferCount, MPI_INT, 0, 0, MPI_COMM_WORLD);
+					free(arrayOfCharsets);
+					return;
+				}
 			hashHex = hashHexBeginPtr;
 		}
 
-		/*Check MPI COMM */
+		/*Check MPI Communication if Receive was complete --> this is only important for the Master Node */
 
 		if (!recvComplete) {
 			MPI_Test(&recvRequest, &recvComplete, &recvStatus);
@@ -127,9 +128,15 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 		}
 
 		/*
-			When the counter is currentLength --> every character has reached the end of the charset -->
-			reset the Array Of Charsets and increase Length
+			When the counter is != currentLength --> increment the charset at position currentLength - counter - 1 --> e.g. move from a to b
+			and reset all other charsets to start from the beginning
+
+			else
+
+			every character has reached the end of the charset -->
+			reset the complete Array Of Charsets and increase Length by 1
 		*/
+		
 
 		if (counter != currentLength) {
 			if (!arrayOfCharsets[currentLength - counter - 1]++) {
@@ -138,14 +145,7 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 			for (i = currentLength - 1; i >= currentLength - counter; i--) {
 				arrayOfCharsets[i] = charset;
 			}
-		}
-		else {
-
-			/*
-				reset the first Charset to the splitcharset
-				Reset all other Charsets to the normal charset
-			*/
-
+		} else {
 			arrayOfCharsets[0] = splitCharset;
 			for (int i = 1; i <= currentLength; i++) {
 				arrayOfCharsets[i] = charset;
@@ -156,6 +156,10 @@ void bruteForceSha256(char* charset, char* splitCharset, unsigned char* hashHex,
 	}
 	free(arrayOfCharsets);
 }
+
+/*
+	Function for splitting workloads equally across all nodes
+*/
 
 char* splitCharsetFunc(char* charset, int world_rank, int world_size) {
 	int intervall = (strlen(charset) / world_size);
@@ -190,20 +194,24 @@ int main(int argc, char** argv) {
 	char* hashString;
 	unsigned char* hashHex;
 
-	// Initialize the MPI environment
+	/*
+		Set up the MPI environment and all necessary information:
+		name of processor, world_rank and world_size
+	*/
+
 	MPI_Init(NULL, NULL);
-	// Get the number of processes
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	// Get the rank of the process
 	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	// Get the name of the processor
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	int name_len;
 	MPI_Get_processor_name(processor_name, &name_len);
 
-  
+	/*
+		Get all arguments from commandline and save to variables
+	*/
+
 	while ((opt = getopt(argc, argv, "l:c:")) != -1){
 		switch (opt){
 		case 'l':
@@ -225,25 +233,33 @@ int main(int argc, char** argv) {
 	hashHex = calloc(1, strlen(hashString) / 2);
 	hexToBytes(hashString, hashHex, strlen(hashString), NULL);
 	
-
-	//Generate the SplittedCharset
+	/*
+		Split the charset into parts to equally set the work loads
+	*/
 	splitCharset = malloc(strlen(splitCharsetFunc(charset, world_rank, world_size)));
 	splitCharset = splitCharsetFunc(charset, world_rank, world_size);
-	printf("Starting Compute for Hash ");
-	for (int i = 0; i < strlen(hashString) / 2; i++)
-	{
-		printf("%02hx", hashHex[i]);
-	}
-	printf("on Node %d\n", world_rank);
-	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 
-	//Calling the Bruteforce Function
+	printf("Starting Compute for Hash ");
+		for (int i = 0; i < strlen(hashString) / 2; i++)
+		{
+			printf("%02hx", hashHex[i]);
+		}
+	printf("on Node %d\n", world_rank);
+
+	/*
+		Set up an MPI Receiver for Communication and call the bruteForce Function
+	*/
+	MPI_Irecv(&recvFlag, bufferCount, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &recvRequest);
 	bruteForceSha256(charset, splitCharset, hashHex, length, world_rank);
 	
-	//MPI Communication Master and Nodes
+	/*
+		After finishing the bruteForce Workload if the Process is the Master it distributes the results to the Nodes 
+		while the Nodes listen for Information. This is a synchronized task --> all process have to "hit" MPI_BARRIER first
+	*/
 		if (world_rank == 0) {
 		MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 			if (recvFlag == -1 && sendFlag == -1) {
+				printf("Master: Waiting for other Nodes to finish.\n");
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Test(&recvRequest, &recvComplete, &recvStatus);
 				if (recvComplete == 0) {
@@ -253,6 +269,7 @@ int main(int argc, char** argv) {
 			}
 			if (recvFlag != -1) {
 				printf("Master: Password was found by Node %d\n", recvFlag);
+				printf("Master: Waiting for other Nodes to finish.\n");
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			}
@@ -261,6 +278,7 @@ int main(int argc, char** argv) {
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&recvFlag, bufferCount, MPI_INT, 0, MPI_COMM_WORLD);
 			if (recvFlag == -1) {
+				// Finalize the MPI environment.
 				free(charset);
 				free(splitCharset);
 				free(hashHex);
